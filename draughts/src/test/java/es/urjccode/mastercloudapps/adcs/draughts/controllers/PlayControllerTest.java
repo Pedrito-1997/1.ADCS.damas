@@ -159,7 +159,7 @@ public class PlayControllerTest {
             "        ",
             "   N    ",
             "        ",
-            " b    n ",
+            " b   n  ",
             "B       ",
             "        ",
             "  b     ").build();
@@ -167,8 +167,8 @@ public class PlayControllerTest {
         Coordinate origin = new Coordinate(4, 1);
         Coordinate target = new Coordinate(3, 2);
         playController.move(origin, target);
-        origin = new Coordinate(4, 6);
-        target = new Coordinate(5, 5);
+        origin = new Coordinate(4, 5);
+        target = new Coordinate(5, 4);
         playController.move(origin, target);
         assertNull(playController.getPiece(new Coordinate(2, 3)));
     }
