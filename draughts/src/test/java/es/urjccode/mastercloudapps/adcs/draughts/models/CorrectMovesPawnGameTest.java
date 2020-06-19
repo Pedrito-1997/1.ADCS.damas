@@ -173,4 +173,34 @@ public class CorrectMovesPawnGameTest extends GameTest {
 
     }
 
+    @Test
+    public void testGivenGameWhenMoveWithBlackThreeEatingThenOk() {
+        this.setGame(Color.WHITE,
+            "        ",
+            "        ",
+            "   n    ",
+            "        ",
+            "   n    ",
+            "        ",
+            " n      ",
+            "b       ");
+        this.setExpectedGame(Color.BLACK,
+            "        ",
+            "    b   ",
+            "        ",
+            "        ",
+            "        ",
+            "        ",
+            "        ",
+            "        ");
+        this.assertMove(
+            new Coordinate(7, 0),
+            new Coordinate(5, 2),
+            new Coordinate(2, 4),
+            new Coordinate(0, 2));
+
+        assertEquals(game.getScore(Color.WHITE), 6);
+
+    }
+
 }
