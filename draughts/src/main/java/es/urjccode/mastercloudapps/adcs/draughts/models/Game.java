@@ -2,7 +2,6 @@ package es.urjccode.mastercloudapps.adcs.draughts.models;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class Game {
 
@@ -40,16 +39,16 @@ public class Game {
 		int pair = 0;
 
 		do {
-			error = this.isCorrectPairMove(pair, coordinates);
+			error = this.board.isCorrectPairMove(turn, pair, coordinates);
 			if (error == null) {
                 this.checkPossibleMovements(coordinatesCanEat, removedCoordinates, pair, coordinates);
-                this.pairMove(removedCoordinates, pair, coordinates);
-                this.removeRandomBadMovement(coordinatesCanEat, removedCoordinates);
+                this.board.pairMove(removedCoordinates, pair, coordinates);
+                this.board.removeRandomBadMovement(coordinatesCanEat, removedCoordinates);
                 pair++;
 			}
 		} while (pair < coordinates.length - 1 && error == null);
 
-		error = this.isCorrectGlobalMove(error, removedCoordinates, coordinates);
+		error = this.board.isCorrectGlobalMove(error, removedCoordinates, coordinates);
 
 		if (error == null)
 			this.turn.change();
@@ -60,7 +59,7 @@ public class Game {
 
     private void checkPossibleMovements(List<Coordinate> coordinatesCanEat, List<Coordinate> removedCoordinates, int pair, Coordinate...coordinates){
         if(removedCoordinates.size() == 0) {
-            List<Coordinate> coordinatesWithActualColor = this.getCoordinatesWithActualColor();
+            List<Coordinate> coordinatesWithActualColor = this.board.getCoordinatesWithActualColor(this.getTurnColor());
             for (Coordinate coordinate : coordinatesWithActualColor) {
                 if (this.getPiece(coordinate) != this.getPiece(coordinates[pair]) && this.isPossibleToEat(coordinate)) {
                     coordinatesCanEat.add(0, coordinate);
@@ -72,68 +71,12 @@ public class Game {
     private boolean isPossibleToEat(Coordinate coordinate){
         List<Coordinate> coordinates = coordinate.getDiagonalCoordinates(2);
         for (Coordinate coordinateTarget : coordinates) {
-            if (this.isCorrectPairMove(0, coordinate, coordinateTarget) == null) {
+            if (this.board.isCorrectPairMove(turn, 0, coordinate, coordinateTarget) == null) {
                 return true;
             }
         }
         return false;
     }
-
-	private Error isCorrectPairMove(int pair, Coordinate... coordinates) {
-		assert coordinates[pair] != null;
-		assert coordinates[pair + 1] != null;
-		if (board.isEmpty(coordinates[pair]))
-			return Error.EMPTY_ORIGIN;
-		if (this.turn.getOppositeColor() == this.board.getColor(coordinates[pair]))
-			return Error.OPPOSITE_PIECE;
-		if (!this.board.isEmpty(coordinates[pair + 1]))
-			return Error.NOT_EMPTY_TARGET;
-		List<Piece> betweenDiagonalPieces =
-			this.board.getBetweenDiagonalPieces(coordinates[pair], coordinates[pair + 1]);
-		return this.board.getPiece(coordinates[pair]).isCorrectMovement(betweenDiagonalPieces, pair, coordinates);
-	}
-
-    private void removeRandomBadMovement(List<Coordinate> coordinatesCanEat, List<Coordinate> removedCoordinates) {
-        if(removedCoordinates.size() == 0 && coordinatesCanEat.size() > 0 ) {
-            int number = new Random().nextInt(coordinatesCanEat.size());
-            removedCoordinates.add(0,coordinatesCanEat.get(number));
-            this.board.remove(coordinatesCanEat.get(number));
-        }
-    }
-
-	private void pairMove(List<Coordinate> removedCoordinates, int pair, Coordinate... coordinates) {
-		Coordinate forRemoving = this.getBetweenDiagonalPiece(pair, coordinates);
-		if (forRemoving != null) {
-			removedCoordinates.add(0, forRemoving);
-			this.board.remove(forRemoving);
-		}
-		this.board.move(coordinates[pair], coordinates[pair + 1]);
-		if (this.board.getPiece(coordinates[pair + 1]).isLimit(coordinates[pair + 1])) {
-			Color color = this.board.getColor(coordinates[pair + 1]);
-			this.board.remove(coordinates[pair + 1]);
-			this.board.put(coordinates[pair + 1], new Draught(color));
-		}
-	}
-
-	private Coordinate getBetweenDiagonalPiece(int pair, Coordinate... coordinates) {
-		assert coordinates[pair].isOnDiagonal(coordinates[pair + 1]);
-		List<Coordinate> betweenCoordinates = coordinates[pair].getBetweenDiagonalCoordinates(coordinates[pair + 1]);
-		if (betweenCoordinates.isEmpty())
-			return null;
-		for (Coordinate coordinate : betweenCoordinates) {
-			if (this.getPiece(coordinate) != null)
-				return coordinate;
-		}
-		return null;
-	}
-
-	private Error isCorrectGlobalMove(Error error, List<Coordinate> removedCoordinates, Coordinate... coordinates){
-		if (error != null)
-			return error;
-		if (coordinates.length > 2 && coordinates.length > removedCoordinates.size() + 1)
-			return Error.TOO_MUCH_JUMPS;
-		return null;
-	}
 
 	private void unMovesUntilPair(List<Coordinate> removedCoordinates, int pair, Coordinate... coordinates) {
 		for (int j = pair; j > 0; j--)
@@ -143,35 +86,22 @@ public class Game {
 	}
 
 	public boolean isBlocked() {
-		for (Coordinate coordinate : this.getCoordinatesWithActualColor())
+		for (Coordinate coordinate : this.board.getCoordinatesWithActualColor(this.getTurnColor()))
 			if (!this.isBlocked(coordinate))
 				return false;
 		return true;
 	}
 
-	private List<Coordinate> getCoordinatesWithActualColor() {
-		List<Coordinate> coordinates = new ArrayList<Coordinate>();
-		for (int i = 0; i < this.getDimension(); i++) {
-			for (int j = 0; j < this.getDimension(); j++) {
-				Coordinate coordinate = new Coordinate(i, j);
-				Piece piece = this.getPiece(coordinate);
-				if (piece != null && piece.getColor() == this.getTurnColor())
-					coordinates.add(coordinate);
-			}
-		}
-		return coordinates;
-	}
-
 	private boolean isBlocked(Coordinate coordinate) {
 		for (int i = 1; i <= 2; i++)
 			for (Coordinate target : coordinate.getDiagonalCoordinates(i))
-				if (this.isCorrectPairMove(0, coordinate, target) == null)
+				if (this.board.isCorrectPairMove(turn, 0, coordinate, target) == null)
 					return false;
 		return true;
 	}
 
 	public void cancel() {
-		for (Coordinate coordinate : this.getCoordinatesWithActualColor())
+		for (Coordinate coordinate : this.board.getCoordinatesWithActualColor(this.getTurnColor()))
 			this.board.remove(coordinate);
 		this.turn.change();
 	}
