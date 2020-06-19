@@ -84,6 +84,8 @@ public class CorrectMovesPawnGameTest extends GameTest {
             "        ",
             "        ");
         this.assertMove(new Coordinate(4, 1), new Coordinate(2, 3));
+
+        assertEquals(game.getScore(Color.WHITE), 1);
     }
 
     @Test
@@ -109,6 +111,8 @@ public class CorrectMovesPawnGameTest extends GameTest {
         this.assertMove(
             new Coordinate(3, 0),
             new Coordinate(5, 2));
+
+        assertEquals(game.getScore(Color.BLACK), 1);
     }
 
     @Test
@@ -135,6 +139,9 @@ public class CorrectMovesPawnGameTest extends GameTest {
             new Coordinate(5, 0),
             new Coordinate(3, 2),
             new Coordinate(1, 4));
+
+        assertEquals(game.getScore(Color.WHITE), 3);
+
     }
 
     @Test
@@ -161,6 +168,9 @@ public class CorrectMovesPawnGameTest extends GameTest {
             new Coordinate(2, 1),
             new Coordinate(4, 3),
             new Coordinate(6, 5));
+
+        assertEquals(game.getScore(Color.BLACK), 3);
+
     }
 
 }
