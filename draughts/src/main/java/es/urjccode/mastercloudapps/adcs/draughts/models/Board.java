@@ -140,11 +140,6 @@ class Board {
             this.remove(forRemoving);
         }
         this.move(coordinates[pair], coordinates[pair + 1]);
-        if (this.getPiece(coordinates[pair + 1]).isLimit(coordinates[pair + 1])) {
-            Color color = this.getColor(coordinates[pair + 1]);
-            this.remove(coordinates[pair + 1]);
-            this.put(coordinates[pair + 1], new Draught(color));
-        }
     }
 
     public Error isCorrectGlobalMove(Error error, List<Coordinate> removedCoordinates, Coordinate... coordinates){
