@@ -7,6 +7,8 @@ public class Game {
 
 	private Board board;
 	private Turn turn;
+	private Score scoreWhite;
+    private Score scoreBlack;
 
 	Game(Board board) {
 		this.turn = new Turn();
